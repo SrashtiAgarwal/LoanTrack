@@ -11,3 +11,5 @@ class VerificationModel(BaseModel):
     description: Optional[str] = None 
     status: str = "Pending"
     submitted_at: datetime = Field(default_factory=datetime.now)
+    officer_comments: Optional[str] = None
+    

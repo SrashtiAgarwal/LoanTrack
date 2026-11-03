@@ -1,46 +1,63 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
-// Auth Components
+// Public / Auth Pages
 import Login from './components/Login';
 import Register from './components/Register';
 import VerifyOtp from './components/VerifyOtp';
 
-// Layout & Dashboard Components
+// Layouts
 import DashboardLayout from './layouts/DashboardLayout';
-import Dashboard from './components/Dashboard';
+import OfficerLayout from './layouts/OfficerLayout';
 
-// Loan & Verification Components
+// Beneficiary Pages
+import Dashboard from './components/Dashboard';
 import MyLoans from './components/MyLoans';
-import SubmitVerification from './components/SubmitVerification'; // <-- SubmitVerification import kar liya
+import SubmitVerification from './components/SubmitVerification';
+import MySubmissions from './components/MySubmissions';
+
+// Officer Pages
+import OfficerDashboard from './components/OfficerDashboard';
+import OfficerLoans from './components/OfficerLoans'
+import OfficerBeneficiaries from './components/OfficerBeneficiaries';
+import OfficerPendingReviews from './components/OfficerPendingReviews';
+import OfficerVerifiedApplications from './components/OfficerVerifiedApplications';
+import OfficerRejectedApplications from './components/OfficerRejectedApplications';
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
-        {/* Public Auth Routes */}
+        {/* Root Redirect: Jab koi http://localhost:5173/ khole, toh seedha Login par jaye */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+
+        {/* Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/verify-otp" element={<VerifyOtp />} /> 
+        <Route path="/verify-otp" element={<VerifyOtp />} />
 
-        {/* Protected Dashboard Routes (Wrapped inside DashboardLayout) */}
+        {/* 1. Beneficiary Portal Routes */}
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/my-loans" element={<MyLoans />} />
-          
-          {/* Real SubmitVerification Component attached here */}
           <Route path="/submit-verification" element={<SubmitVerification />} />
-          
-          <Route path="/my-submissions" element={<div className="p-8 text-2xl font-bold text-slate-800">My Submissions Page (Coming Soon)</div>} />
-          <Route path="/verification-status" element={<div className="p-8 text-2xl font-bold text-slate-800">Verification Status Page (Coming Soon)</div>} />
-          <Route path="/notifications" element={<div className="p-8 text-2xl font-bold text-slate-800">Notifications Page (Coming Soon)</div>} />
-          <Route path="/profile" element={<div className="p-8 text-2xl font-bold text-slate-800">My Profile Page (Coming Soon)</div>} />
+          <Route path="/my-submissions" element={<MySubmissions />} />
         </Route>
 
-        {/* Default Redirect to Login */}
+        {/* 2. Officer / Auditor Portal Routes */}
+        <Route element={<OfficerLayout />}>
+          <Route path="/officer/dashboard" element={<OfficerDashboard />} />
+          <Route path="/officer/loans" element={<OfficerLoans />} />
+          <Route path="/officer/beneficiaries" element={<OfficerBeneficiaries />} />
+          <Route path="/officer/pending-reviews" element={<OfficerPendingReviews />} />
+          <Route path="/officer/verified-applications" element={<OfficerVerifiedApplications />} />
+          <Route path="/officer/rejected-applications" element={<OfficerRejectedApplications />} />
+        </Route>
+
+        {/* Default Catch-all Redirect for unknown URLs */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 

@@ -163,6 +163,8 @@ def login_user(user: LoginModel):
         "token_type": "bearer",
         "user": {
             "name": db_user["name"],
-            "email": db_user["email"]
+            "email": db_user["email"],
+            "role": db_user["role"]
+
         }
     }

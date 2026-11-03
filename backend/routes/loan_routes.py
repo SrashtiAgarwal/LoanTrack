@@ -1,10 +1,15 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Form, UploadFile, File
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from models.loan_model import LoanModel
-from database import users_collection, loans_collection
+from database import users_collection, loans_collection, verifications_collection
 import os
+from datetime import datetime
+from typing import Optional
 from jose import jwt, JWTError
 from dotenv import load_dotenv
+from utils.cloudinary_helper import upload_to_cloudinary
+import cloudinary
+import cloudinary.uploader
 
 load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY", "your_secret_key")

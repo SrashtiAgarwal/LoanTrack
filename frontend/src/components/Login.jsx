@@ -28,9 +28,24 @@ function Login() {
 
       const data = await response.json();
       if (response.ok) {
-        localStorage.setItem("access_token", data.access_token); // Token save karna zaroori hai!
-        navigate("/dashboard"); // Ya jahan bhi aap redirect karati hain
+        // 1. LocalStorage update karein
+        localStorage.setItem("access_token", data.access_token);
+
+        const userRole = data.user?.role || "Beneficiary";
+        const userName = data.user?.name || "User";
+
+        localStorage.setItem("user_name", userName);
+        localStorage.setItem("role", userRole);
+
+        // 2. Role-based Conditional Redirection
+        if (userRole.toLowerCase() === "officer") {
+          navigate("/officer/dashboard", { replace: true });
+        } else {
+          navigate("/dashboard", { replace: true });
+        }
       }
+
+
 
       else {
         alert(data.detail || 'Login failed!');

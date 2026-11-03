@@ -143,7 +143,7 @@ const SubmitVerification = () => {
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-lg border border-gray-200 mt-6 mb-12">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Submit Loan Utilization Verification</h2>
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">Submit Asset Verification</h2>
 
       {message && <div className="mb-4 p-3 bg-green-100 text-green-700 rounded">{message}</div>}
       {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">{error}</div>}
@@ -177,7 +177,7 @@ const SubmitVerification = () => {
             value={formData.store_name}
             onChange={handleChange}
             required
-            placeholder="e.g. Sharma Machinery Store"
+            placeholder="e.g. Agarwal Machinery Store"
             className="w-full p-2.5 border border-gray-300 rounded-md"
           />
         </div>
@@ -262,14 +262,9 @@ const SubmitVerification = () => {
                   onClick={() => startCamera('bill')}
                   className="bg-blue-600 text-white text-sm px-3 py-1.5 rounded hover:bg-blue-700"
                 >
-                  Use Webcam
+                  Upload-Bill
                 </button>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setBillFile(e.target.files[0])}
-                  className="text-xs text-gray-500 w-full file:py-1 file:px-2 file:border-0 file:rounded file:bg-gray-200"
-                />
+                
               </div>
             )}
           </div>
@@ -286,14 +281,9 @@ const SubmitVerification = () => {
                   onClick={() => startCamera('asset')}
                   className="bg-blue-600 text-white text-sm px-3 py-1.5 rounded hover:bg-blue-700"
                 >
-                  Use Webcam
+                  Upload-Asset
                 </button>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setAssetFile(e.target.files[0])}
-                  className="text-xs text-gray-500 w-full file:py-1 file:px-2 file:border-0 file:rounded file:bg-gray-200"
-                />
+                
               </div>
             )}
           </div>

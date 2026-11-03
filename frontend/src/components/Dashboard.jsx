@@ -1,148 +1,161 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
-function Dashboard() {
-  const navigate = useNavigate();
-
-  const [stats] = useState({
-    totalLoans: 3,
-    verificationSubmitted: 5,
-    pendingReview: 2,
-    approvedSubmissions: 3,
-    declinedSubmissions: 0,
+const Dashboard = () => {
+  const [userName, setUserName] = useState("User");
+  const [stats, setStats] = useState({
+    totalLoans: 0,
+    totalSubmissions: 0,
+    pendingCount: 0,
+    approvedCount: 0,
   });
+  const [loading, setLoading] = useState(true);
 
-  const [recentActivities] = useState([
-    {
-      id: 1,
-      title: 'Machinery Purchase Bill Uploaded',
-      loanId: 'LN-2026-8942',
-      date: '12 Oct 2026',
-      status: 'Pending Review',
-      statusColor: 'text-amber-700 bg-amber-50 border-amber-200',
-    },
-    {
-      id: 2,
-      title: 'Raw Material Invoice Verified',
-      loanId: 'LN-2026-8942',
-      date: '08 Oct 2026',
-      status: 'Approved',
-      statusColor: 'text-emerald-700 bg-emerald-50 border-emerald-200',
-    },
-    {
-      id: 3,
-      title: 'Initial Utilization Proof Submitted',
-      loanId: 'LN-2026-3109',
-      date: '01 Oct 2026',
-      status: 'Approved',
-      statusColor: 'text-emerald-700 bg-emerald-50 border-emerald-200',
-    },
-  ]);
+  useEffect(() => {
+    // User ka naam fetch karein
+    const savedName = localStorage.getItem("user_name");
+    if (savedName) {
+      // Sirf First Name nikalne ke liye (e.g. Srashti)
+      const firstName = savedName.split(" ")[0];
+      setUserName(firstName);
+    }});
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const token = localStorage.getItem("access_token");
+        const headers = { "Authorization": `Bearer ${token}` };
+
+        // 1. Fetch Loans
+        const loansRes = await fetch("http://localhost:8000/api/loans/my-loans", { headers });
+        const loansData = await loansRes.json();
+        const loans = loansData.loans || [];
+
+        // 2. Fetch Submissions
+        const subRes = await fetch("http://localhost:8000/api/verification/my-submissions", { headers });
+        const subData = await subRes.json();
+        const submissions = subData.submissions || [];
+
+        // Calculate Stats
+        const pending = submissions.filter(s => s.status === 'Pending').length;
+        const approved = submissions.filter(s => s.status === 'Approved').length;
+
+        setStats({
+          totalLoans: loans.length,
+          totalSubmissions: submissions.length,
+          pendingCount: pending,
+          approvedCount: approved,
+        });
+      } catch (err) {
+        console.error("Failed to load dashboard data", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  if (loading) {
+    return <div className="p-8 text-center text-slate-600 font-medium">Loading dashboard...</div>;
+  }
 
   return (
-    <div className="p-8 space-y-8 bg-slate-50/50 min-h-full">
+    <div className="max-w-6xl mx-auto p-6 space-y-6">
       {/* Welcome Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200/80 p-7 rounded-3xl shadow-sm">
+      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-slate-900 rounded-2xl p-6 text-white shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Welcome back, Srashti 👋</h1>
-          <p className="text-slate-500 text-sm mt-1">
-            Track your registered loans, submit expenditure proofs, and monitor approval status.
+          <h1 className="text-2xl font-bold mb-1">Welcome back, {userName} 👋</h1>
+          <p className="text-blue-100 text-sm max-w-lg">
+          please submit your loan utilization proofs and track live verification status.
           </p>
         </div>
-        <button
-          onClick={() => navigate('/submit-verification')}
-          className="px-5 py-3.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white font-semibold rounded-xl text-sm shadow-lg shadow-blue-600/20 transition duration-150 flex items-center justify-center gap-2 cursor-pointer shrink-0"
+        <Link
+          to="/submit-verification"
+          className="bg-white text-blue-600 hover:bg-blue-50 font-bold px-5 py-2.5 rounded-xl shadow-sm text-sm transition whitespace-nowrap"
         >
-          <span>➕</span> Submit for Verification
-        </button>
+          + Quick Submit
+        </Link>
       </div>
 
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-sm">
-          <div className="flex items-center justify-between text-slate-500 mb-3">
-            <span className="text-xs font-semibold uppercase tracking-wider">Registered Loans</span>
-            <span className="text-lg">🏦</span>
-          </div>
-          <p className="text-3xl font-bold text-slate-900">{stats.totalLoans}</p>
-          <p className="text-xs text-slate-400 mt-2">Active loan accounts</p>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between">
+          <span className="text-sm font-medium text-slate-500">Active Loans</span>
+          <span className="text-3xl font-bold text-slate-800 mt-2">{stats.totalLoans}</span>
         </div>
-
-        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-sm">
-          <div className="flex items-center justify-between text-slate-500 mb-3">
-            <span className="text-xs font-semibold uppercase tracking-wider">Submitted Proofs</span>
-            <span className="text-lg">📤</span>
-          </div>
-          <p className="text-3xl font-bold text-slate-900">{stats.verificationSubmitted}</p>
-          <p className="text-xs text-slate-400 mt-2">Total proofs uploaded</p>
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between">
+          <span className="text-sm font-medium text-slate-500">Total Submissions</span>
+          <span className="text-3xl font-bold text-blue-600 mt-2">{stats.totalSubmissions}</span>
         </div>
-
-        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-sm">
-          <div className="flex items-center justify-between text-slate-500 mb-3">
-            <span className="text-xs font-semibold uppercase tracking-wider">Pending Review</span>
-            <span className="text-lg">⏳</span>
-          </div>
-          <p className="text-3xl font-bold text-amber-600">{stats.pendingReview}</p>
-          <p className="text-xs text-slate-400 mt-2">Awaiting bank action</p>
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between">
+          <span className="text-sm font-medium text-slate-500">Pending Review</span>
+          <span className="text-3xl font-bold text-yellow-600 mt-2">{stats.pendingCount}</span>
         </div>
-
-        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-sm">
-          <div className="flex items-center justify-between text-slate-500 mb-3">
-            <span className="text-xs font-semibold uppercase tracking-wider">Approved / Declined</span>
-            <span className="text-lg">✅</span>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-emerald-600">{stats.approvedSubmissions}</span>
-            <span className="text-slate-300 text-lg">/</span>
-            <span className="text-xl font-semibold text-rose-600">{stats.declinedSubmissions}</span>
-          </div>
-          <p className="text-xs text-slate-400 mt-2">Verification breakdown</p>
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between">
+          <span className="text-sm font-medium text-slate-500">Approved Verifications</span>
+          <span className="text-3xl font-bold text-green-600 mt-2">{stats.approvedCount}</span>
         </div>
       </div>
 
-      {/* Recent Activity Table */}
-      <div className="bg-white border border-slate-200/80 rounded-3xl p-7 shadow-sm space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-slate-900">Recent Activity</h2>
-          <button
-            onClick={() => navigate('/my-submissions')}
-            className="text-xs font-semibold text-blue-600 hover:text-blue-700 transition"
+      {/* Modern Action Bar Hub */}
+      <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+        {/* <h2 className="text-lg font-bold text-slate-800 mb-4">Portal Actions & Navigation</h2> */}
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
+          {/* Action 1: Submit Verification */}
+          <Link
+            to="/submit-verification"
+            className="group p-4 border border-slate-200 rounded-xl hover:border-blue-500 hover:bg-blue-50/50 transition flex items-center gap-4"
           >
-            View All Submissions →
-          </button>
-        </div>
+            <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 font-bold text-xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition">
+              📷
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-800 group-hover:text-blue-600 transition">
+                Submit New Proof
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">Capture asset photos & bills</p>
+            </div>
+          </Link>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-600">
-            <thead className="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
-              <tr>
-                <th className="px-4 py-3.5 rounded-l-xl">Submission Details</th>
-                <th className="px-4 py-3.5">Loan ID</th>
-                <th className="px-4 py-3.5">Date</th>
-                <th className="px-4 py-3.5 rounded-r-xl">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {recentActivities.map((activity) => (
-                <tr key={activity.id} className="hover:bg-slate-50/60 transition">
-                  <td className="px-4 py-4 font-medium text-slate-900">{activity.title}</td>
-                  <td className="px-4 py-4 font-mono text-xs text-slate-500">{activity.loanId}</td>
-                  <td className="px-4 py-4 text-xs text-slate-500">{activity.date}</td>
-                  <td className="px-4 py-4">
-                    <span
-                      className={`inline-block px-3 py-1 rounded-full text-xs font-medium border ${activity.statusColor}`}
-                    >
-                      {activity.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {/* Action 2: View History */}
+          <Link
+            to="/my-submissions"
+            className="group p-4 border border-slate-200 rounded-xl hover:border-indigo-500 hover:bg-indigo-50/50 transition flex items-center gap-4"
+          >
+            <div className="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 font-bold text-xl flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition">
+              📋
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-800 group-hover:text-indigo-600 transition">
+                View History & Status
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">View Records</p>
+            </div>
+          </Link>
+
+          {/* Action 3: My Loans List */}
+          <Link
+            to="/my-loans"
+            className="group p-4 border border-slate-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/50 transition flex items-center gap-4"
+          >
+            <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 font-bold text-xl flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition">
+              💼
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-800 group-hover:text-emerald-600 transition">
+                View Active Loans
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">Check active loan schemes</p>
+            </div>
+          </Link>
+
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default Dashboard;

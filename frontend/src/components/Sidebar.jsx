@@ -6,7 +6,7 @@ const navItems = [
   { name: 'My Loans', path: '/my-loans', icon: '🏦' },
   { name: 'Submit Verification', path: '/submit-verification', icon: '📄' },
   { name: 'My Submissions', path: '/my-submissions', icon: '📁' },
-  { name: 'Verification Status', path: '/verification-status', icon: '⏳' },
+  // { name: 'Verification Status', path: '/verification-status', icon: '⏳' },
   { name: 'Notifications', path: '/notifications', icon: '🔔' },
   { name: 'My Profile', path: '/profile', icon: '👤' },
 ];
